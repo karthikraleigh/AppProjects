@@ -1,0 +1,33 @@
+appId: com.karthik.chessanalyzer
+productName: Chess Analyzer
+directories:
+  buildResources: build
+  output: dist
+
+files:
+  - out/**
+  - '!**/*.map'
+
+# The engine must exist as real files on disk: Emscripten's locateFile() cannot
+# read a .wasm out of an asar archive. extraResources lands them in
+# process.resourcesPath, outside the archive.
+extraResources:
+  - from: resources/engine-host.cjs
+    to: engine-host.cjs
+  # Both engine builds ship: the 7 MB lite net (default) and the 108 MB full net,
+  # selectable in Settings. `npm run engine:full` must have run first.
+  - from: resources/engine
+    to: engine
+    filter:
+      - '**/*'
+
+asar: true
+
+win:
+  target:
+    - nsis
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  perMachine: false

@@ -1,0 +1,6 @@
+# Excluded from this repo by request.
+minesweeper.html
+
+# OS cruft
+.DS_Store
+Thumbs.db

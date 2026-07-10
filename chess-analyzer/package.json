@@ -1,0 +1,37 @@
+{
+  "name": "chess-analyzer",
+  "version": "0.1.0",
+  "description": "Offline chess analysis desktop app powered by Stockfish",
+  "main": "./out/main/index.js",
+  "author": "karthik",
+  "license": "MIT",
+  "scripts": {
+    "engine:copy": "node scripts/copy-engine.mjs",
+    "engine:full": "node scripts/copy-engine.mjs --full",
+    "verify:lessons": "node scripts/verify-lessons.mjs",
+    "postinstall": "node scripts/copy-engine.mjs",
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "build:win": "npm run engine:full && npm run build && electron-builder --win",
+    "typecheck": "tsc --noEmit -p tsconfig.node.json && tsc --noEmit -p tsconfig.web.json"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.2",
+    "@types/react-dom": "^19.0.2",
+    "@vitejs/plugin-react": "^5.0.0",
+    "chess.js": "^1.4.0",
+    "electron": "^43.1.0",
+    "electron-builder": "^26.15.3",
+    "electron-vite": "^5.0.0",
+    "react": "^19.2.0",
+    "react-chessboard": "^5.10.0",
+    "react-dom": "^19.2.0",
+    "recharts": "^3.9.2",
+    "stockfish": "^18.0.8",
+    "typescript": "^5.7.2",
+    "vite": "^7.3.5"
+  }
+}

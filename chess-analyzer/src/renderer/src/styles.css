@@ -1,0 +1,920 @@
+:root {
+  --bg: #161512;
+  --panel: #26241f;
+  --panel-2: #2e2b25;
+  --border: #3a382f;
+  --text: #e8e6df;
+  --muted: #9b978a;
+  --accent: #e8a33d;
+  --pos: #d8d4c8;
+  --neg: #8f8b80;
+  --error: #fa412d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.45 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow: hidden;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ---- top bar ---- */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+}
+
+.topbar h1 {
+  font-size: 15px;
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.topbar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 4px;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--muted);
+  padding: 5px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font: inherit;
+  text-transform: capitalize;
+}
+
+.tab:hover {
+  color: var(--text);
+}
+
+.tab.active {
+  background: var(--panel-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.tabs.small .tab {
+  padding: 3px 9px;
+  font-size: 12px;
+}
+
+/* ---- layout ---- */
+.layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) 380px;
+  gap: 18px;
+  padding: 18px;
+  overflow: hidden;
+}
+
+/* `.layout { display: grid }` beats the UA `[hidden] { display: none }` rule. */
+.layout[hidden] {
+  display: none;
+}
+
+.layout-full {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px;
+}
+
+.board-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.side-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Size the board from its height, not its width. Letting `aspect-ratio` follow
+   a flexed width lets the board grow unbounded and push the side panels out. */
+.board-wrap {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+  min-height: 0;
+  height: min(66vh, 100%);
+}
+
+.board {
+  height: 100%;
+  aspect-ratio: 1;
+  flex: 0 0 auto;
+}
+
+/* ---- promotion picker ---- */
+.playable-board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.promotion-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 10, 10, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+.promotion-picker {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.promotion-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.promotion-choices {
+  display: flex;
+  gap: 6px;
+}
+
+.promotion-choice {
+  width: 52px;
+  height: 52px;
+  font-size: 34px;
+  line-height: 1;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  cursor: pointer;
+}
+
+.promotion-choice.white {
+  color: #f0ede4;
+  text-shadow: 0 0 2px #000;
+}
+
+.promotion-choice.black {
+  color: #16150f;
+  text-shadow: 0 0 2px #aaa;
+}
+
+.promotion-choice:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: #1c1a16;
+  text-shadow: none;
+}
+
+/* ---- eval bar ---- */
+.evalbar {
+  position: relative;
+  width: 30px;
+  flex: 0 0 30px;
+  border-radius: 4px;
+  background: #2a2a2a;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.evalbar-fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: #f0ede4;
+  transition: height 0.25s ease;
+}
+
+.evalbar-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 9px;
+  font-weight: 700;
+  z-index: 2;
+}
+
+/* ---- controls ---- */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.controls button,
+button.ghost,
+button.primary {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font: inherit;
+}
+
+.controls button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1c1a16;
+  font-weight: 600;
+}
+
+button.primary:disabled {
+  opacity: 0.6;
+}
+
+button.ghost.small,
+.small {
+  font-size: 12px;
+}
+
+.eval-readout {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 64px;
+  text-align: center;
+}
+
+.accuracy-row {
+  display: flex;
+  gap: 24px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.accuracy-row b {
+  color: var(--text);
+}
+
+/* ---- progress ---- */
+.progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 0.2s ease;
+}
+
+/* ---- panels ---- */
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.panel-head h3 {
+  margin: 0;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+}
+
+.subhead {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--muted);
+  margin: 12px 0 6px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.error {
+  color: var(--error);
+}
+
+.empty-hint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ---- engine lines ---- */
+.lines {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.line-row {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font: inherit;
+}
+
+.line-row:hover {
+  background: var(--panel-2);
+}
+
+.line-eval {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  min-width: 52px;
+}
+
+.line-eval.pos {
+  color: var(--pos);
+}
+
+.line-eval.neg {
+  color: var(--neg);
+}
+
+.line-pv {
+  color: var(--muted);
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.engine-stats {
+  margin-top: 8px;
+}
+
+/* ---- grade box ---- */
+.grade-box {
+  border-left: 3px solid var(--accent);
+  background: var(--panel-2);
+  border-radius: 4px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}
+
+.grade-title {
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.grade-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+/* ---- move list ---- */
+.movelist {
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.move-row {
+  display: grid;
+  grid-template-columns: 34px 1fr 1fr;
+  align-items: center;
+  gap: 4px;
+}
+
+.move-no {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: right;
+  padding-right: 4px;
+}
+
+.move-cell {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  border-radius: 4px;
+  padding: 3px 6px;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+}
+
+.move-cell:hover {
+  background: var(--panel-2);
+}
+
+.move-cell.active {
+  background: var(--accent);
+  color: #1c1a16;
+  font-weight: 600;
+}
+
+.move-cell.empty {
+  cursor: default;
+}
+
+.move-symbol {
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* ---- openings ---- */
+.opening-current {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.eco-badge {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.eco-badge.small {
+  font-size: 10px;
+}
+
+.opening-name {
+  font-weight: 600;
+}
+
+.opening-name.small {
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.trap-warning {
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-radius: 5px;
+  background: #3a2a1c;
+  border-left: 3px solid var(--accent);
+  font-size: 13px;
+}
+
+.continuations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.cont-btn.danger {
+  border-color: #8a5a2b;
+}
+
+.cont-btn.danger b {
+  color: var(--accent);
+}
+
+.cont-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 4px 8px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  max-width: 160px;
+}
+
+.cont-btn:hover {
+  border-color: var(--accent);
+}
+
+.cont-name {
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.opening-results {
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.opening-result {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.opening-moves {
+  grid-column: 2;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- forms ---- */
+.text-input,
+.pgn-input,
+select {
+  width: 100%;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  padding: 7px 9px;
+  font: inherit;
+  margin-bottom: 8px;
+}
+
+.pgn-input {
+  resize: vertical;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+
+.field input[type='range'] {
+  width: 100%;
+}
+
+/* ---- import ---- */
+.game-list {
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.game-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 6px 9px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+}
+
+.game-row:hover {
+  border-color: var(--accent);
+}
+
+.game-row.saved {
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 6px 4px 9px;
+}
+
+.game-row-main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
+  flex: 1;
+  min-width: 0;
+}
+
+.game-row .delete {
+  padding: 2px 7px;
+  opacity: 0.5;
+}
+
+.game-row .delete:hover {
+  opacity: 1;
+  color: var(--error);
+}
+
+.game-players {
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.offline-badge {
+  color: var(--error);
+  font-size: 12px;
+}
+
+/* ---- status bar ---- */
+.statusbar {
+  display: flex;
+  justify-content: space-between;
+  padding: 6px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.evalgraph {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 4px 0;
+}
+
+code {
+  background: var(--panel-2);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 12px;
+}
+
+/* ---- learn + puzzles ---- */
+.puzzle-mode,
+.learn-lesson {
+  display: grid;
+  grid-template-columns: minmax(420px, 1fr) 380px;
+  gap: 18px;
+  align-items: start;
+}
+
+/* `.layout-full` has no definite height, so `.board { height: 100% }` would
+   resolve to auto and aspect-ratio would size the board from its width. */
+.puzzle-mode .board-wrap,
+.learn-lesson .board-wrap {
+  height: min(62vh, 52vw);
+}
+
+.learn-index {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 1100px;
+}
+
+.learn-back {
+  margin-bottom: 12px;
+}
+
+.lesson-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 10px;
+}
+
+.lesson-card {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-start;
+  text-align: left;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+}
+
+.lesson-card:hover {
+  border-color: var(--accent);
+}
+
+.lesson-card-title {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.lesson-card-blurb {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+.lesson-card-foot {
+  margin-top: 2px;
+}
+
+.lesson-text {
+  margin: 0 0 8px;
+  line-height: 1.6;
+  font-size: 13px;
+}
+
+.lesson-cue {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  border-left: 3px solid var(--accent);
+  padding-left: 9px;
+}
+
+.lesson-move {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 6px;
+}
+
+.lesson-line {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+
+.line-step {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 3px 9px;
+  cursor: pointer;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+}
+
+.line-step.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #1c1a16;
+  font-weight: 600;
+}
+
+.puzzle-status {
+  padding: 9px 11px;
+  border-radius: 6px;
+  background: var(--panel-2);
+  border-left: 3px solid var(--muted);
+  margin-bottom: 10px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.puzzle-status.wrong {
+  border-left-color: var(--error);
+}
+
+.puzzle-status.solved {
+  border-left-color: #59d68c;
+}
+
+.puzzle-status.revealed {
+  border-left-color: var(--accent);
+}
+
+.puzzle-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.daily-badge {
+  background: var(--accent);
+  color: #1c1a16;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-weight: 700;
+  font-size: 10px;
+}
+
+.puzzle-themes,
+.theme-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+
+.theme-chip {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.theme-chip.button {
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  color: var(--text);
+}
+
+.theme-chip.button:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.theme-chip.button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.progress-grid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}

@@ -1,0 +1,19 @@
+# Dependencies -- reproducible via `npm install`
+node_modules/
+
+# Build output -- reproducible via `npm run build` / `npm run build:win`
+out/
+dist/
+
+# Vendored engine binaries -- copied from node_modules/stockfish by
+# scripts/copy-engine.mjs (postinstall) / `npm run engine:full`. The full net
+# alone is 108MB, over GitHub's 100MB per-file limit, so neither belongs in git.
+resources/engine/*.js
+resources/engine/*.wasm
+
+# TypeScript incremental build cache
+*.tsbuildinfo
+
+# Local secrets, should any be added later
+.env
+.env.local
